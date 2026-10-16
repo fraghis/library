@@ -11,37 +11,107 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Checkout du code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configuration de Java 17
+      - name: Réorganisation automatique des fichiers
+        run: |
+          set -e
+          mkdir -p app/src/main/java/com/hawkins/library/data/model
+          mkdir -p app/src/main/java/com/hawkins/library/data/remote
+          mkdir -p app/src/main/java/com/hawkins/library/data/local
+          mkdir -p app/src/main/java/com/hawkins/library/ui/theme
+          mkdir -p app/src/main/java/com/hawkins/library/ui/navigation
+          mkdir -p app/src/main/java/com/hawkins/library/ui/home
+          mkdir -p app/src/main/java/com/hawkins/library/ui/videos
+          mkdir -p app/src/main/java/com/hawkins/library/ui/player
+          mkdir -p app/src/main/java/com/hawkins/library/ui/books/reader
+          mkdir -p app/src/main/java/com/hawkins/library/ui/settings
+          mkdir -p app/src/main/res/values
+          mkdir -p app/src/main/res/drawable
+          mkdir -p app/src/main/res/mipmap-anydpi-v26
+          mkdir -p gradle/wrapper
+
+          [ -f "AndroidManifest.xml" ] && mv AndroidManifest.xml app/src/main/ || true
+          [ -f "proguard-rules.pro" ] && mv proguard-rules.pro app/ || true
+
+          [ -f "HawkinsApp.kt" ] && mv HawkinsApp.kt app/src/main/java/com/hawkins/library/ || true
+          [ -f "MainActivity.kt" ] && mv MainActivity.kt app/src/main/java/com/hawkins/library/ || true
+
+          [ -f "DriveFile.kt" ] && mv DriveFile.kt app/src/main/java/com/hawkins/library/data/model/ || true
+          [ -f "Book.kt" ] && mv Book.kt app/src/main/java/com/hawkins/library/data/model/ || true
+
+          [ -f "DriveApiService.kt" ] && mv DriveApiService.kt app/src/main/java/com/hawkins/library/data/remote/ || true
+          [ -f "DriveRepository.kt" ] && mv DriveRepository.kt app/src/main/java/com/hawkins/library/data/remote/ || true
+
+          [ -f "AppDatabase.kt" ] && mv AppDatabase.kt app/src/main/java/com/hawkins/library/data/local/ || true
+
+          [ -f "Color.kt" ] && mv Color.kt app/src/main/java/com/hawkins/library/ui/theme/ || true
+          [ -f "Theme.kt" ] && mv Theme.kt app/src/main/java/com/hawkins/library/ui/theme/ || true
+          [ -f "Type.kt" ] && mv Type.kt app/src/main/java/com/hawkins/library/ui/theme/ || true
+
+          [ -f "AppNavigation.kt" ] && mv AppNavigation.kt app/src/main/java/com/hawkins/library/ui/navigation/ || true
+
+          [ -f "HomeScreen.kt" ] && mv HomeScreen.kt app/src/main/java/com/hawkins/library/ui/home/ || true
+
+          [ -f "VideosScreen.kt" ] && mv VideosScreen.kt app/src/main/java/com/hawkins/library/ui/videos/ || true
+          [ -f "VideosViewModel.kt" ] && mv VideosViewModel.kt app/src/main/java/com/hawkins/library/ui/videos/ || true
+
+          [ -f "PlayerActivity.kt" ] && mv PlayerActivity.kt app/src/main/java/com/hawkins/library/ui/player/ || true
+          [ -f "PlayerScreen.kt" ] && mv PlayerScreen.kt app/src/main/java/com/hawkins/library/ui/player/ || true
+
+          [ -f "BooksScreen.kt" ] && mv BooksScreen.kt app/src/main/java/com/hawkins/library/ui/books/ || true
+          [ -f "BooksViewModel.kt" ] && mv BooksViewModel.kt app/src/main/java/com/hawkins/library/ui/books/ || true
+
+          [ -f "PdfReaderScreen.kt" ] && mv PdfReaderScreen.kt app/src/main/java/com/hawkins/library/ui/books/reader/ || true
+          [ -f "EpubReaderScreen.kt" ] && mv EpubReaderScreen.kt app/src/main/java/com/hawkins/library/ui/books/reader/ || true
+          [ -f "EpubParser.kt" ] && mv EpubParser.kt app/src/main/java/com/hawkins/library/ui/books/reader/ || true
+
+          [ -f "SettingsScreen.kt" ] && mv SettingsScreen.kt app/src/main/java/com/hawkins/library/ui/settings/ || true
+
+          [ -f "strings.xml" ] && mv strings.xml app/src/main/res/values/ || true
+          [ -f "colors.xml" ] && mv colors.xml app/src/main/res/values/ || true
+          [ -f "themes.xml" ] && mv themes.xml app/src/main/res/values/ || true
+
+          [ -f "ic_launcher_foreground.xml" ] && mv ic_launcher_foreground.xml app/src/main/res/drawable/ || true
+          [ -f "ic_launcher.xml" ] && mv ic_launcher.xml app/src/main/res/mipmap-anydpi-v26/ || true
+          [ -f "ic_launcher_round.xml" ] && mv ic_launcher_round.xml app/src/main/res/mipmap-anydpi-v26/ || true
+
+          [ -f "gradle-wrapper.properties" ] && mv gradle-wrapper.properties gradle/wrapper/ || true
+
+          rm -f "build.gradle (1).kts" "download" "libs.versions.toml" 2>/dev/null || true
+
+          echo "=== Structure finale ==="
+          find app -type f | sort
+
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Configuration du SDK Android
+      - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
           packages: 'platforms;android-35 build-tools;35.0.0 platform-tools'
 
-      - name: Acceptation des licences Android
+      - name: Accept Android licenses
         run: yes | sdkmanager --licenses || true
 
-      - name: Configuration de Gradle
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
-      - name: Création du fichier local.properties
+      - name: Create local.properties
         run: |
           echo "sdk.dir=$ANDROID_HOME" > local.properties
           echo "DRIVE_API_KEY=${{ secrets.DRIVE_API_KEY }}" >> local.properties
 
-      - name: Compilation de l'APK debug
+      - name: Build debug APK
         run: gradle :app:assembleDebug --stacktrace
 
-      - name: Téléversement de l'APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: HawkinsLibrary-debug-apk
