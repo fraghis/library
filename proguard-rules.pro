@@ -1,5 +1,13 @@
--keepattributes *Annotation*
--keep class com.hawkins.library.data.model.** { *; }
--dontwarn okhttp3.**
--dontwarn retrofit2.**
--dontwarn org.jsoup.**
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.HawkinsLibrary" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowBackground">@color/dark_background</item>
+    </style>
+
+    <style name="Theme.HawkinsLibrary.Player" parent="Theme.HawkinsLibrary">
+        <item name="android:windowBackground">@color/black</item>
+    </style>
+</resources>
