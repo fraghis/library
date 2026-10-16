@@ -1,0 +1,6 @@
+# Hawkins Library ProGuard rules
+-keepattributes *Annotation*
+-keep class com.hawkins.library.data.model.** { *; }
+-dontwarn okhttp3.**
+-dontwarn retrofit2.**
+-dontwarn org.jsoup.**
