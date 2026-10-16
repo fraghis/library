@@ -3,8 +3,6 @@ name: Build Hawkins Library APK
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -13,49 +11,37 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Checkout du code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configuration de Java 17
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Configuration du SDK Android
+      - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
           packages: 'platforms;android-35 build-tools;35.0.0 platform-tools'
 
-      - name: Acceptation des licences Android
-        run: |
-          yes | sdkmanager --licenses || true
+      - name: Accept Android licenses
+        run: yes | sdkmanager --licenses || true
 
-      - name: Configuration de Gradle
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
-      - name: Création du fichier local.properties
+      - name: Create local.properties
         run: |
           echo "sdk.dir=$ANDROID_HOME" > local.properties
           echo "DRIVE_API_KEY=${{ secrets.DRIVE_API_KEY }}" >> local.properties
-          echo "✅ local.properties créé"
 
-      - name: Compilation de l'APK debug
+      - name: Build debug APK
         run: gradle :app:assembleDebug --stacktrace
 
-      - name: Vérification de l'APK
-        run: |
-          if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
-            echo "✅ APK trouvé"
-            ls -la app/build/outputs/apk/debug/
-          else
-            echo "❌ APK non trouvé"
-            exit 1
-          fi
-
-      - name: Téléversement de l'APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: HawkinsLibrary-debug-apk

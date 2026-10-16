@@ -1,4 +1,3 @@
-# Hawkins Library ProGuard rules
 -keepattributes *Annotation*
 -keep class com.hawkins.library.data.model.** { *; }
 -dontwarn okhttp3.**

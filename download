@@ -17,4 +17,3 @@ gen/
 out/
 release/
 *.hprof
-.cxx/

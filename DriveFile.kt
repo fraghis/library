@@ -12,9 +12,6 @@ data class DriveFile(
     @SerializedName("modifiedTime") val modifiedTime: String? = null
 ) {
     val isVideo: Boolean get() = mimeType.startsWith("video/")
-    val isFolder: Boolean get() = mimeType == "application/vnd.google-apps.folder"
-    val isPdf: Boolean get() = mimeType == "application/pdf"
-    val isEpub: Boolean get() = mimeType.contains("epub", ignoreCase = true)
 
     val durationFormatted: String
         get() {
@@ -23,11 +20,8 @@ data class DriveFile(
             val hours = totalSeconds / 3600
             val minutes = (totalSeconds % 3600) / 60
             val seconds = totalSeconds % 60
-            return if (hours > 0) {
-                String.format("%d:%02d:%02d", hours, minutes, seconds)
-            } else {
-                String.format("%d:%02d", minutes, seconds)
-            }
+            return if (hours > 0) String.format("%d:%02d:%02d", hours, minutes, seconds)
+            else String.format("%d:%02d", minutes, seconds)
         }
 }
 
